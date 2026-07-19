@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build output
+dist
+dist-ssr
+*.local
+
+# Rust / Tauri
+src-tauri/target
+src-tauri/gen
+
+# Local secrets & runtime config — NEVER commit the real backend base URL / tokens
+src-tauri/r00tshop.toml
+
+# Backend + bot live in their own repositories
+server/
+
+# Built desktop binary
+Fovea.exe
+
+# Local runtime state (image cache, Tor/arti guards & circuit state, key material)
+cache/
+state/
+keystore/
+
+# Local Claude Code settings
+.claude/
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

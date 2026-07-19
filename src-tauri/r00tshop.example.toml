@@ -1,0 +1,13 @@
+# r00tshop core configuration.
+#
+# Copy this file to `r00tshop.toml` (same directory as the executable, or set
+# R00TSHOP_CONFIG to its absolute path) and fill in your backend's real values.
+# `.gitignore` already excludes `r00tshop.toml`.
+
+[backend]
+# Public HTTPS base URL of the store backend. The origin server is hidden behind
+# a Cloudflare Tunnel, so this is the Cloudflare hostname — no path, no trailing
+# slash.
+base_url = "https://shop.example.com"
+# Base path prefix for the JSON API.
+api_base = "/api"

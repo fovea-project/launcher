@@ -1,0 +1,74 @@
+[package]
+name = "r00tshop"
+version = "0.1.0"
+description = "Private software store launcher — backend reached over HTTPS (origin behind Cloudflare)."
+authors = ["r00tshop"]
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+# The Tauri mobile/desktop entrypoint lives in the library so it can be shared.
+name = "r00tshop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-store = "2"
+
+# --- async runtime ---
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time"] }
+futures = "0.3"
+
+# --- direct HTTPS transport to the backend (origin hidden behind a Cloudflare
+# Tunnel). native-tls uses SChannel on Windows / Secure Transport on macOS, so
+# there is no OpenSSL build dependency. ---
+reqwest = { version = "0.12", default-features = false, features = ["native-tls", "http2"], optional = true }
+
+# --- serialization / config ---
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+
+# --- secure secret storage (OS keychain). The native backend per OS is enabled
+# in the [target.*] sections at the bottom of this file. ---
+keyring = "3"
+
+# --- misc ---
+base64 = "0.22"
+anyhow = "1"
+thiserror = "2"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+directories = "5"
+
+[features]
+# Real network transport (direct HTTPS via reqwest) — the default.
+default = ["real-net"]
+real-net = ["dep:reqwest"]
+
+# Build/run the native app WITHOUT any network stack, returning the same mock
+# data the frontend uses in browser mode. Use for fast UI iteration from the
+# shell:
+#   cargo check --no-default-features --features mock-network
+mock-network = []
+
+# Native keychain backend, selected per platform so the dependency tree stays
+# clean on each OS (Windows Credential Manager / macOS Keychain / Secret Service).
+[target.'cfg(windows)'.dependencies]
+keyring = { version = "3", features = ["windows-native"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+keyring = { version = "3", features = ["apple-native"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+keyring = { version = "3", features = ["sync-secret-service"] }
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
